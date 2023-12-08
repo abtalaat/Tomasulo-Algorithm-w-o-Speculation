@@ -3,7 +3,8 @@ import adder
 
 issue_stall = 0
 
-def exe():
+def exe(system_instance):
+    if system_instance.stall["issue"] == 0 and system_instance.stall["mem"] == 0 and system_instance.stall["add"] == 0 and system_instance.stall["mul"] == 0 and system_instance.clock != 1 and len(system_instance.inst_queue) != 0:
 	global instruction, operand, dest, vj, vk, issue_stall
 
 	if system.stall["issue"] == 0 and system.stall["mem"] == 0 and system.stall["add"] == 0 and system.stall["mul"] == 0 and system.clock != 1 and len(system.inst_queue) != 0: # If there is no stall coming from any of the other blocks, instruction fetch and decode isn't stalled and it can remove the last instruction issued from the queue
