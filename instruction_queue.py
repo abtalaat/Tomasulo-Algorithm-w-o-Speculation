@@ -1,33 +1,25 @@
 class InstructionExecution:
     def __init__(self):
         self.issue_stall = 0
+        self.dest , self.operand, self.vj, self.vk = [0,0,0,0]
 
     def exe(self, system_instance):
-        if system_instance.stall["issue"] == 0 and system_instance.stall["mem"] == 0 and system_instance.stall["add"] == 0 and system_instance.stall["mul"] == 0 and system_instance.clock != 1 and len(system_instance.inst_queue) != 0:
-            #global instruction, operand, dest, vj, vk, issue_stall
-
-            if system_instance.stall["issue"] == 0 and system_instance.stall["mem"] == 0 and system_instance.stall["add"] == 0 and system_instance.stall["mul"] == 0 and system_instance.clock != 1 and len(system_instance.inst_queue) != 0:
-                system_instance.inst_queue.pop(0)
-                system_instance.stall["general"] = 0
-
-            if len(system_instance.inst_queue) == 0:
-                return 0, 0, 0, 0
-
+        if system_instance.stall["general"] == 0 and system_instance.clock != 1 and len(system_instance.inst_queue) != 0:
             instruction = system_instance.inst_queue[0].split()
-            operand = instruction[0]
-            dest = instruction[1]
-            vj = instruction[2]
-            if operand == 'LD' or operand == 'STR':
-                vk = 0
+            self.operand = instruction[0]
+            self.dest = instruction[1]
+            self.vj = instruction[2]
+            if self.operand == 'LD' or self.operand == 'STR':
+                self.vk = 0
             else:
-                vk = instruction[3]
+                self.vk = instruction[3]
 
-            if system_instance.busy_reg[int(dest[1])] == 1:
+            if system_instance.busy_reg[int(self.dest[1])] == 1:
                 system_instance.stall["issue"] = 1
-                operand = 0
-                dest = 0
-                vj = 0
-                vk = 0
+                self.operand = 0
+                self.dest = 0
+                self.vj = 0
+                self.vk = 0
             else:
                 system_instance.stall["issue"] = 0
 
@@ -36,4 +28,6 @@ class InstructionExecution:
             else:
                 system_instance.instruction_issued = 0
 
-            return operand, dest, vj, vk
+            return self.operand, self.dest, self.vj, self.vk
+        else:
+            return 0, 0, 0, 0

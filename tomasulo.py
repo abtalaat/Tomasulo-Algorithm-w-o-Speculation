@@ -1,45 +1,54 @@
-import time
-from display import SystemStatus
 from system import System
-from instruction_queue import InstructionQueue
-from memory import Memory
+from display import SystemStatus
 from reservation_station import ReservationStation
-from adder import AdderManager
-from multiplier import MultiplierManager
 from databus import ExecutionManager
+from adder import AdderManager
+from memory import MemoryManagement
+from instruction_queue import InstructionExecution
+from multiplier import MultiplierALU
 
-# Initialize the system and components
-system = System()
-instruction_queue = InstructionQueue()
-memory = Memory()
-reservation_station = ReservationStation()
-adder_manager = AdderManager()
-multiplier_manager = MultiplierManager()
-cdb = ExecutionManager()
-display = SystemStatus()
+# Instantiate the components
+system_instance = System()
+multiplier_alu = MultiplierALU(system_instance) 
+adder_manager = AdderManager(system_instance)
+reservation_station = ReservationStation(system_instance, adder_manager, multiplier_alu)
+execution_manager = ExecutionManager(system_instance, reservation_station)
+memory_manager = MemoryManagement()
+instruction_executor = InstructionExecution()
+system_status = SystemStatus(system_instance, instruction_executor, reservation_station, adder_manager, None, execution_manager)
+multiplier_alu = MultiplierALU(system_instance) 
 
-system.initialize()
+# Simulation loop
+while system_instance.clock <= system_instance.max_time:
+    # Execute instructions using the InstructionExecution class
+    execution_result = instruction_executor.exe(system_instance)
+    
+    if execution_result is None:
+        # Handle the case where no instructions are available or some condition is not met
+        # For example, you might want to break out of the simulation loop or perform other actions
+        print("error")
+        break
+    
+    operand, dest, vj, vk = execution_result
 
-# Main loop
-for system.clock in range(1, system.max_time):
-    instruction = instruction_queue.exe()
+    # Execute addition/subtraction operations
+    for i in range(system_instance.add_number):
+        reservation_station.add_exe(i, [operand, dest, vj, vk], system_instance)
+        adder_manager.execute(system_instance, i, 0,0,0,0)
 
-    memory.exe(instruction)
+    # Execute multiplication/division operations
+    for i in range(system_instance.mul_number):
+        reservation_station.mul_exe(i, [operand, dest, vj, vk], system_instance)
+        multiplier_alu.exe(i, 0, 0, 0, 0)
+   
+    # Execute memory operations using MemoryManagement class
+    memory_manager.exe([operand, dest, vj, vk], system_instance)
 
-    for i in range(system.add_number):
-        reservation_station.add_exe(i, instruction)
-        adder_manager.execute(system, i, 0, 0, 0, 0)
+    # Execute the execution manager
+    execution_manager.execute()
 
-    for i in range(system.mul_number):
-        reservation_station.mul_exe(i, instruction)
-        multiplier_manager.exe(system, i, 0, 0, 0, 0)
+    # Display system status
+    system_status.show()
 
-    cdb.execute()
-
-    system_status = display.generate_system_status(system, instruction_queue, reservation_station, adder_manager, multiplier_manager)
-    display.generate_system_status(system_status)
-
-    time.sleep(system.sleep_duration)
-
-for i in range(len(system.mem)):
-    print("Memory slot", i, ": ", system.mem[i], sep='')
+    # Increment clock cycle
+    system_instance.clock += 1

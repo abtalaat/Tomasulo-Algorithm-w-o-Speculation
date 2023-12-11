@@ -1,31 +1,30 @@
-from reservation_station import v1_add, v2_add, v1_mul, v2_mul
-import system
-
 class ExecutionManager:
-    def __init__(self):
-        pass
+    def __init__(self, system, reservation_station):
+        self.system = system
+        self.reservation_station = reservation_station
 
     def execute(self):
         # Fetch the results on the result_queue and send them back to the registers as well as the reservation stations
-        for i in range(len(system.result_queue)):
-            result = system.result_queue[0]
+        for i in range(len(self.system.result_queue)):
+            result = self.system.result_queue[0]
             register_number = int(result[0][1])
-            system.register[register_number] = result[1]  # Store the result in the register
-            system.busy_reg[register_number] = 0
-            system.empty_reg[register_number] = 0
+            self.system.register[register_number] = result[1]  # Store the result in the register
+            self.system.busy_reg[register_number] = 0
+            self.system.empty_reg[register_number] = 0
 
-            for j in range(system.add_number):  # Check if the adder reservation station needs the results
-                if v1_add[j] == result[0]:
-                    v1_add[j] = result[1]
+            # Access reservation station variables using the instance reference
+            for j in range(self.system.add_number):
+                if self.reservation_station.v1_add[j] == result[0]:
+                    self.reservation_station.v1_add[j] = result[1]
 
-                if v2_add[j] == result[0]:
-                    v2_add[j] = result[1]
+                if self.reservation_station.v2_add[j] == result[0]:
+                    self.reservation_station.v2_add[j] = result[1]
 
-            for j in range(system.mul_number):  # Check if the multiplier reservation station needs the results
-                if v1_mul[j] == result[0]:
-                    v1_mul[j] = result[1]
+            for j in range(self.system.mul_number):
+                if self.reservation_station.v1_mul[j] == result[0]:
+                    self.reservation_station.v1_mul[j] = result[1]
 
-                if v2_mul[j] == result[0]:
-                    v2_mul[j] = result[1]
+                if self.reservation_station.v2_mul[j] == result[0]:
+                    self.reservation_station.v2_mul[j] = result[1]
 
-            system.result_queue.pop(0)
+            self.system.result_queue.pop(0)
