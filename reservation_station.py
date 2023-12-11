@@ -14,7 +14,7 @@ class ReservationStation:
     def add_exe(self, number, instruction, system):
         if self.adder.busy_add[number] == 1 and self.adder.start_add[number] == 0:
             if isinstance(self.v1_add[number], int) and isinstance(self.v2_add[number], int):
-                self.adder.exe(number, self.op_res_add[number], self.v1_add[number], self.v2_add[number], self.dest_add[number])
+                self.adder.execute(system, number, self.op_res_add[number], self.v1_add[number], self.v2_add[number], self.dest_add[number])
 
         if self.adder.busy_add[number] == 0 and (instruction[0] == "ADD" or instruction[0] == "SUB") and system.instruction_issued == 0:
             self.adder.busy_add[number] = 1
@@ -44,6 +44,8 @@ class ReservationStation:
 
         if number == system.add_number - 1 and system.instruction_issued == 0 and (instruction[0] == "ADD" or instruction[0] == "SUB"):
             system.stall["add"] = 1
+        else:
+            system.stall["add"] = 0
 
     def mul_exe(self, number, instruction, system):
         if self.multiplier.busy_mul[number] == 1 and self.multiplier.start_mul[number] == 0:

@@ -15,7 +15,7 @@ reservation_station = ReservationStation(system_instance, adder_manager, multipl
 execution_manager = ExecutionManager(system_instance, reservation_station)
 memory_manager = MemoryManagement()
 instruction_executor = InstructionExecution()
-system_status = SystemStatus(system_instance, instruction_executor, reservation_station, adder_manager, None, execution_manager)
+system_status = SystemStatus(system_instance, instruction_executor, reservation_station, adder_manager, multiplier_alu, execution_manager)
 multiplier_alu = MultiplierALU(system_instance) 
 
 # Simulation loop

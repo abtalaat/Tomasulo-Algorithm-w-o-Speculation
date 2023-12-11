@@ -20,14 +20,19 @@ class InstructionExecution:
                 self.dest = 0
                 self.vj = 0
                 self.vk = 0
+                return 0, 0, 0, 0
+
             else:
                 system_instance.stall["issue"] = 0
 
             if system_instance.stall["issue"] == 1 or system_instance.stall["mem"] == 1 or system_instance.stall["add"] == 1 or system_instance.stall["mul"] == 1:
                 system_instance.stall["general"] = 1
+                return 0, 0, 0, 0
+
             else:
                 system_instance.instruction_issued = 0
-
-            return self.operand, self.dest, self.vj, self.vk
-        else:
+                system_instance.stall["general"] = 0
+                system_instance.inst_queue.pop(0)
+                return self.operand, self.dest, self.vj, self.vk
+        else: 
             return 0, 0, 0, 0

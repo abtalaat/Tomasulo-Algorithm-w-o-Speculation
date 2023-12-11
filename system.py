@@ -9,7 +9,7 @@ class System:
         self.busy_reg = [0, 0, 0, 0, 0]
         self.empty_reg = [1, 1, 1, 1, 1]
         self.mem = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-        self.inst_queue = ["ADD R0 1 2", "LD R1 1", "LD R2 4"]
+        self.inst_queue = [ "LD R1 1","ADD R0 1 2", "LD R2 4"]
         self.load_time = 2
         self.result_queue = [[] for _ in range(10)]
         self.result_queue.clear()
