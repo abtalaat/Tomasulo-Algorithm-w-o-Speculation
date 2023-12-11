@@ -1,40 +1,45 @@
-##Import
 import time
-import display
+from display import SystemStatus
+from system import System
+from instruction_queue import InstructionQueue
+from memory import Memory
+from reservation_station import ReservationStation
+from adder import AdderManager
+from multiplier import MultiplierManager
+from databus import ExecutionManager
 
-import system
-import instruction_queue
-import memory
-import reservation_station
-import adder
-import multiplier
-import cdb
+# Initialize the system and components
+system = System()
+instruction_queue = InstructionQueue()
+memory = Memory()
+reservation_station = ReservationStation()
+adder_manager = AdderManager()
+multiplier_manager = MultiplierManager()
+cdb = ExecutionManager()
+display = SystemStatus()
 
 system.initialize()
 
-##Main loop
-for system.clock in range(1,system.max_time): #Clock cycle, every iteration is the following clock cycle
-	
-	instruction = instruction_queue.exe() #IF/ID (instruction fetch and decode)
+# Main loop
+for system.clock in range(1, system.max_time):
+    instruction = instruction_queue.exe()
 
-	memory.exe(instruction) #Memory block, if the instruction is a load or store, it will be processed here
+    memory.exe(instruction)
 
-	for i in range(system.add_number): ##Adder reservation stations, send the instruction to the adder reservations stations
-	 	reservation_station.add_exe(i, instruction)
-	 	adder.exe(i, 0, 0, 0, 0)
+    for i in range(system.add_number):
+        reservation_station.add_exe(i, instruction)
+        adder_manager.execute(system, i, 0, 0, 0, 0)
 
-	for i in range(system.mul_number):##Multiplier reservation stations, send the instruction to the multiplier reservations stations
-		reservation_station.mul_exe(i, instruction)
-		multiplier.exe(i, 0, 0, 0, 0)
+    for i in range(system.mul_number):
+        reservation_station.mul_exe(i, instruction)
+        multiplier_manager.exe(system, i, 0, 0, 0, 0)
 
+    cdb.execute()
 
-	cdb.exe() ##Common Data Bus, which will broadcast the result back to the registers and reservation stations
+    system_status = display.generate_system_status(system, instruction_queue, reservation_station, adder_manager, multiplier_manager)
+    display.generate_system_status(system_status)
 
-	display.show() ##Will print the state of the machine
-
-	## Next clock cycle
-	time.sleep(system.sleep_duration)
+    time.sleep(system.sleep_duration)
 
 for i in range(len(system.mem)):
-	print("Memory slot", i, ": ", system.mem[i], sep='')
-
+    print("Memory slot", i, ": ", system.mem[i], sep='')

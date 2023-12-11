@@ -1,49 +1,50 @@
-import system
-import instruction_queue
-import reservation_station
-import adder
-import multiplier
-import cdb
+class SystemStatus:
+    def __init__(self):
+        self.clock_cycle = None
+        self.stall = False
+        self.instruction_queue = None
+        self.adder_reservation_station = []
+        self.multiplier_reservation_station = []
+        # ... other attributes for adder and multiplier operations ...
 
-def show():
-	print("clock cycle: ", system.clock)
+    def generate_system_status(self, system_instance, instruction_queue_instance, reservation_station_instance, adder_instance, multiplier_instance):
+        self.clock_cycle = system_instance.clock
 
-	if system.stall["general"] == 1:
-		print("stall")
+        if system_instance.stall["general"] == 1:
+            self.stall = True
 
-	# ##Instruction queue
-	print("Instruction queue:", instruction_queue.operand, instruction_queue.dest, instruction_queue.vj, instruction_queue.vk)
+        self.instruction_queue = {
+            "operand": instruction_queue_instance.operand,
+            "dest": instruction_queue_instance.dest,
+            "vj": instruction_queue_instance.vj,
+            "vk": instruction_queue_instance.vk
+        }
 
-	#Adder reservation station
-	for i in range(system.add_number):
-		print("reservation_station_adder", i,  "busy", adder.busy_add[i], "dest", reservation_station.dest_add[i], "operand", reservation_station.op_res_add[i], "v1", reservation_station.v1_add[i], "v2", reservation_station.v2_add[i])
+        # Adder reservation station
+        for i in range(system_instance.add_number):
+            self.adder_reservation_station.append({
+                "index": i,
+                "busy": adder_instance.busy_add[i],
+                "dest": reservation_station_instance.dest_add[i],
+                "operand": reservation_station_instance.op_res_add[i],
+                "v1": reservation_station_instance.v1_add[i],
+                "v2": reservation_station_instance.v2_add[i]
+            })
 
-	#Multiplier reservation station
-	for i in range(system.mul_number):
-		print("reservation_station_mul", i,  "busy", multiplier.busy_mul[i], "dest", reservation_station.dest_mul[i], "operand", reservation_station.op_res_mul[i], "v1", reservation_station.v1_mul[i], "v2", reservation_station.v2_mul[i])
+        # Multiplier reservation station
+        for i in range(system_instance.mul_number):
+            self.multiplier_reservation_station.append({
+                "index": i,
+                "busy": multiplier_instance.busy_mul[i],
+                "dest": reservation_station_instance.dest_mul[i],
+                "operand": reservation_station_instance.op_res_mul[i],
+                "v1": reservation_station_instance.v1_mul[i],
+                "v2": reservation_station_instance.v2_mul[i]
+            })
 
-	#If Adder starts a calculation or is done with it
-	for i in range(system.add_number):
-		if adder.start_add[i] == 1 and system.clock == adder.start_clock_add[i]:
-			print("Adder", i, " has started operation", adder.op_add[i], adder.add1[i], adder.add2[i], " - dest", adder.dest_add[i], "sent on CDB")
+        # Logic for adder and multiplier operations...
+        # ...
 
-		if adder.start_clock_add[i] != 0 and system.clock == (adder.start_clock_add[i] + system.add_time):
-	 		print("Adder", i, " has finished operation", adder.op_add[i], adder.add1[i], adder.add2[i], " - dest", adder.dest_add[i], "sent on CDB")
+        # Register status (you can store registers similarly)
 
-	 #If Multiplier starts a calculation or is done with it
-	for i in range(system.mul_number):
-		if multiplier.start_mul[i] == 1 and system.clock == multiplier.start_clock_mul[i]:
-			print("Multiplier", i, " has started operation", multiplier.op_mul[i], multiplier.mul1[i], multiplier.mul2[i], " - dest", multiplier.dest_mul[i], "sent on CDB")
-
-		if multiplier.start_clock_mul[i] != 0 and system.clock == (multiplier.start_clock_mul[i] + system.mul_time):
-	 		print("multiplier", i, " has finished operation", multiplier.op_mul[i], multiplier.mul1[i], multiplier.mul2[i], " - dest", multiplier.dest_mul[i], "sent on CDB")
-
-	# Registers
-	for i in range(len(system.register)):
-		print("R", i, ": ", system.register[i], sep='')
-	for i in range(len(system.register)):
-		print("Busy R", i, ": ", system.busy_reg[i], sep='')
-	# for i in range(len(system.register)):
-	# 	print("Empty R", i, ":", system.empty_reg[i], sep='')
-
-	print()
+        return self
